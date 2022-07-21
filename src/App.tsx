@@ -2,7 +2,7 @@ import React from 'react';
 import './App.css';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { Container, CssBaseline } from '@mui/material';
-import { MoMLandView } from './components/MoMLandView';
+import { MoMLandView } from './components/mom/MoMLandView';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import { HomeView } from './HomeView';
 
