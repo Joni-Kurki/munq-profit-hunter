@@ -1,7 +1,10 @@
 import React from 'react';
 import './App.css';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { CssBaseline } from '@mui/material';
+import { Container, CssBaseline } from '@mui/material';
+import { MoMLandView } from './components/MoMLandView';
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import { HomeView } from './HomeView';
 
 const darkTheme = createTheme({
 	palette: {
@@ -13,7 +16,14 @@ function App() {
 	return (
 		<ThemeProvider theme={darkTheme}>
 			<CssBaseline />
-			<main>test</main>
+			<Router>
+				<Container>
+					<Routes>
+						<Route path="/" element={<HomeView />} />
+						<Route path="/mom" element={<MoMLandView />} />
+					</Routes>
+				</Container>
+			</Router>
 		</ThemeProvider>
 	);
 }
