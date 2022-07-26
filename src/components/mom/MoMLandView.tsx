@@ -1,26 +1,52 @@
-import { Button, Grid, Typography } from "@mui/material"
+import { Grid, Typography } from "@mui/material"
 import axios from "axios"
 import { useEffect, useState } from "react";
 import { API_ENDPOINT_URL } from "../../common/constants"
-import { IGetLandPlotsResponse, ILandPlot } from "../../interfaces/IMoMInteface";
+import { MoMFilterTypeEnum } from "../../common/enum";
+import { getRarityNumberFromEnum } from "../../common/helper";
+import { IGetLandPlotsResponse, ILandPlot, IMoMFilter } from "../../interfaces/IMoMInteface";
 import { IMoMLandPlotRowProps, MoMLandPlotRow } from "./MoMLandPlotRow";
+import { IMoMStickyFiltersHeaderProps, MoMStickyFiltersHeader } from "./MoMStickyFiltersHeader";
 
 export const MoMLandView = () => {
 
-	const [landPlotData, setLandPlotData] = useState<ILandPlot[] | null>(null);
+	const [allLandPlotData, setAllLandPlotData] = useState<ILandPlot[] | null>(null);
+	const [filteredLandPlotData, setFilteredLandPlotData] = useState<ILandPlot[] | null>(null);
 
-	const handleButtonClick = () => {
+	const fetchLandPlotData = () => {
 		axios.get<IGetLandPlotsResponse>(`${API_ENDPOINT_URL}/api/mom/getLandPlots`)
 			.then(response => {
 				if(response?.data){
-					setLandPlotData(response?.data.landPlots ?? null);
+					setAllLandPlotData(response?.data.landPlots ?? null);
+					
 				}
 			});
 	}
 
 	useEffect(() => {
-		console.log(landPlotData);
-	}, [landPlotData])
+		setFilteredLandPlotData(allLandPlotData);
+	}, [allLandPlotData])
+
+	useEffect(() => {
+		console.log(filteredLandPlotData)
+	}, [filteredLandPlotData])
+
+	const handleFilterChange = (filters: IMoMFilter[]) => {
+
+		for(let filter of filters){
+			if(allLandPlotData && filter?.type && filter?.value
+				&& Number(filter.type) === MoMFilterTypeEnum.Rarity){
+				let filtered = [...allLandPlotData]
+					.filter(a => getRarityNumberFromEnum(a.rarity ?? "") === Number(filter.value))
+				setFilteredLandPlotData(filtered);
+			}
+		}
+	}
+
+	const moMStickyFiltersHeaderProps: IMoMStickyFiltersHeaderProps = {
+		fetchLandPlotData: fetchLandPlotData,
+		onFilterChange: (filters: IMoMFilter[]) => { handleFilterChange(filters) }
+	}
 
 	return(
 		<Grid container>
@@ -28,14 +54,13 @@ export const MoMLandView = () => {
 				<Grid container>
 					<Typography variant="h2">MoM land plot scanner</Typography>
 				</Grid>
-				<Grid container>
-					<Button	variant="outlined" onClick={handleButtonClick}>Get 'em</Button>
-				</Grid>
+				
+				<MoMStickyFiltersHeader {...moMStickyFiltersHeaderProps} />
 			</Grid>
 			<Grid container>
 
-				{ (landPlotData && landPlotData?.length > 0) ? landPlotData?.map(plot => {
-					const props:IMoMLandPlotRowProps = {
+				{ (filteredLandPlotData && filteredLandPlotData?.length > 0) ? filteredLandPlotData?.map(plot => {
+					const props: IMoMLandPlotRowProps = {
 						data: plot
 					}
 					return (

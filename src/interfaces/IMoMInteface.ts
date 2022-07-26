@@ -1,3 +1,5 @@
+import { MoMFilterTypeEnum } from './../common/enum';
+
 export interface IGetLandPlotsResponse {
 	landPlots: ILandPlot[];
 }
@@ -27,4 +29,18 @@ export interface IBuildingRarityLevel {
 export interface IAtomicPrice {
 	amount: number;
 	symbol: string;
+}
+
+export interface IMoMLandPlotFilter {
+	filters: IMoMFilter[];
+}
+
+export interface IMoMFilter {
+	type: MoMFilterTypeEnum | null;
+	value: string[] | number[] | null;
+}
+
+export interface IDropDownValueArray {
+	name: string;
+	value: number;
 }
