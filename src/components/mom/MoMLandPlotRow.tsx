@@ -1,8 +1,9 @@
-import { Grid } from "@mui/material"
+import { Chip, Grid } from "@mui/material"
 import { ILandPlot } from "../../interfaces/IMoMInteface"
 import { IMoMLandPlotRowBuildingProps, MoMLandPlotRowBuilding } from "./MoMLandPlotRowBuilding";
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { ATOMIC_HUB_BASE } from "../../common/constants";
+import { getLandChipColorByRarity } from "../../common/helper";
 
 export interface IMoMLandPlotRowProps {
 	data: ILandPlot;
@@ -12,7 +13,7 @@ export const MoMLandPlotRow = (props: IMoMLandPlotRowProps) => {
 	const moMLandPlotRowBuildingProps: IMoMLandPlotRowBuildingProps = {
 		data: props.data.buildingsData
 	}
-	//<a href={createAtomicHubInventoryLink(ico.owner, "terraformers", "exp1.ico", ico.template_mint, ico.template_mint)} target="_blank" rel="noreferrer noopener"><OpenInNewIcon fontSize="small" style={{ color: "#32b8f1"}} /> </a>
+
 	return (
 		<Grid container style={{ borderBottom: "dotted 1px lightgrey" }}>
 			<Grid item xs={2}>
@@ -35,7 +36,7 @@ export const MoMLandPlotRow = (props: IMoMLandPlotRowProps) => {
 				{ props.data.availableSpace }
 			</Grid>
 			<Grid item xs={1}>
-				{ props.data.rarity ?? "" }
+				<Chip size="small" variant="outlined" label={props.data.rarity ?? "BUNDLE"} style={{backgroundColor: getLandChipColorByRarity(props.data.rarity ?? "BUNDLE") ?? ""}} />
 			</Grid>
 			<Grid item xs={5}>
 				<MoMLandPlotRowBuilding {...moMLandPlotRowBuildingProps} />
