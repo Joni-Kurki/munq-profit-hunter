@@ -1,96 +1,83 @@
-import { Button, Grid, InputLabel, MenuItem, OutlinedInput, Select, SelectChangeEvent } from "@mui/material";
+import { Button, Checkbox, Grid, InputLabel, MenuItem, OutlinedInput, Select, SelectChangeEvent } from "@mui/material";
 import { useEffect, useState } from "react";
-import { MoMFilterTypeEnum } from "../../common/enum";
-import { getMoMDropdownMenuItems } from "../../common/helper";
+import { MoMFilterTypeEnum, MoMLandRarityFilterEnum } from "../../common/enum";
+import { getLandChipColorByRarity, getMoMDropdownMenuItems } from "../../common/helper";
 import { IMoMFilter, IMoMLandPlotFilter } from "../../interfaces/IMoMInteface";
 
 export interface IMoMStickyFiltersHeaderProps {
 	fetchLandPlotData: () => void;
-	onFilterChange: (filters: IMoMFilter[]) => void;
+	onLandRarityFilterChange: (rarities: number[]) => void;
 }
 
 export const MoMStickyFiltersHeader = (props: IMoMStickyFiltersHeaderProps) => {
-	const [selectedFilterType, setSelectedFilter] = useState<string | null>(null);
-	const [selectedSecondaryFilterType, setSelectedSecondaryFilterType] = useState<number[]>([]);
+	const [selectedLandRarities, setSelectedLandRarities] = useState<number[]>([
+		MoMLandRarityFilterEnum.Common,
+		MoMLandRarityFilterEnum.Uncommon,
+		MoMLandRarityFilterEnum.Rare,
+		MoMLandRarityFilterEnum.Epic,
+		MoMLandRarityFilterEnum.Legendary
+	]);
 
-	const handleFilterChange = (event: SelectChangeEvent<typeof selectedFilterType> | SelectChangeEvent<typeof selectedSecondaryFilterType>, filterLevel: number = 0) => {
-		const value: string = event.target.value as string; 
-		console.log(value);
+	const handleLandRarityFilterChange = (value: number, checked: boolean) => {
+		let selectedValues = [...selectedLandRarities];
+		
+		let found = selectedValues.find(v => v === value);
 
-		if(value && value !== ""){
-			switch(filterLevel){
-				case 0:
-					setSelectedFilter(value);
-					break;
-				case 1:
-					// let values = [...selectedSecondaryFilterType];
-					const valueToUse: number[] = event.target.value as number[];
-					// const contains = values.find(f => f === valueToUse);
-					
-					// console.log(values, contains, valueToUse)
-					// if(contains)
-					// 	values = values.filter(f => f !== valueToUse);
-					// else 
-					// 	values.push(valueToUse);
-
-					setSelectedSecondaryFilterType(valueToUse);
-					break;
-				default:
-					return;
-			}
+		if(found){
+			selectedValues = selectedValues.filter(v => value !== v);
 		} else {
-			setSelectedFilter(null);
-			setSelectedSecondaryFilterType([]);
+			selectedValues.push(value);
 		}
+		setSelectedLandRarities([...selectedValues].sort((a,b) => a - b));
+	}
+
+	const isLandRarityChecked = (value: number) => {
+		return selectedLandRarities.findIndex(v => v === value) > -1;
 	}
 
 	useEffect(() => {
-		if(selectedFilterType && Number(selectedFilterType) === MoMFilterTypeEnum.None){
-			setSelectedSecondaryFilterType([]);
-		}
-		// console.log(selectedFilterType, selectedSecondaryFilterType);
+		props.onLandRarityFilterChange(selectedLandRarities);
+	}, [selectedLandRarities])
 
-		const filter: IMoMFilter = {
-			type: Number(selectedFilterType) || null,
-			value: selectedSecondaryFilterType || null
-		} 
-
-
-		props.onFilterChange([filter]);
-	}, [selectedFilterType, selectedSecondaryFilterType])
+	const landRaritiesCheckBoxes = [
+		{ label: "Common", value: MoMLandRarityFilterEnum.Common, color: getLandChipColorByRarity("Common")  },
+		{ label: "Uncommon", value: MoMLandRarityFilterEnum.Uncommon , color: getLandChipColorByRarity("Uncommon") },
+		{ label: "Rare", value: MoMLandRarityFilterEnum.Rare, color: getLandChipColorByRarity("Rare")  },
+		{ label: "Epic", value: MoMLandRarityFilterEnum.Epic, color: getLandChipColorByRarity("Epic")  },
+		{ label: "Legendary", value: MoMLandRarityFilterEnum.Legendary, color: getLandChipColorByRarity("Legendary")  },
+	];
 
 	return (
 		<Grid container style={{ borderBottom: "solid 1px white" }}>
 			<Grid container >
-				<Button	variant="outlined" onClick={props.fetchLandPlotData}>Get 'em</Button>
+				<Button	variant="outlined" onClick={props.fetchLandPlotData}>Load the data</Button>
 			</Grid>
 
 			<Grid container>
-				<Grid item xs={2}>
-					<InputLabel id={"mom-filter-type-select-label"}>Filtering type</InputLabel>
-					<Select
-						labelId="mom-filter-type-select-label"
-						onChange={(event: SelectChangeEvent) => handleFilterChange(event)}
-						value={selectedFilterType ?? ""}
-					>
-						{ getMoMDropdownMenuItems("momFilterType") }
-					</Select>
-				</Grid>
-
-				{ (selectedFilterType && Number(selectedFilterType) !== MoMFilterTypeEnum.None) && 
-					<Grid item xs={2}>
-						<InputLabel id={"mom-filter-value-select-label"}>Filter</InputLabel>
-						<Select
-							labelId="mom-filter-value-select-label"
-							onChange={(event: SelectChangeEvent<typeof selectedSecondaryFilterType>) => handleFilterChange(event, 1)}
-							// onChange={() => {}}
-							multiple
-							value={selectedSecondaryFilterType}
-						>
-							{ getMoMDropdownMenuItems("momLandAndBuildingRarity") }
-						</Select>
+				<Grid item xs={12}>
+					<Grid container style={{ alignItems: "center" }}>
+						<Grid item xs={1}>
+							Land rarities
+						</Grid>
+						<Grid item xs={3}>
+							{ landRaritiesCheckBoxes.map(box => 
+								<Checkbox
+									checked={isLandRarityChecked(box.value)}
+									key={`mom-land-rarity-checkbox-${box.value}`}
+									onChange={(e) => handleLandRarityFilterChange(box.value, e.target.checked)}
+									style={{ color: box.color ?? "" }}
+									title={box.label}
+								/>
+							) }
+						</Grid>
+						<Grid item xs={1}>
+							Price
+						</Grid>
+						<Grid item xs={4}>
+							min 150, max 300
+						</Grid>
 					</Grid>
-				}
+				</Grid>
 			</Grid>
 
 			<Grid container style={{ borderTop: "1px dotted white", padding: "0.5rem" }}>

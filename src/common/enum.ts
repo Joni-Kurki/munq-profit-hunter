@@ -13,3 +13,11 @@ export enum MoMRarityEnum {
 	Mythic = 6,
 	Special = 7
 }
+
+export enum MoMLandRarityFilterEnum {
+	Common = 1,
+	Uncommon = 2,
+	Rare = 3,
+	Epic = 4,
+	Legendary = 5
+}

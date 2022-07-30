@@ -1,4 +1,4 @@
-import { IBuildingRarityLevel, IDropDownValueArray } from '../interfaces/IMoMInteface';
+import { IBuildingRarityLevel, IDropDownValueArray, ILandPlot } from '../interfaces/IMoMInteface';
 import { MenuItem } from "@mui/material";
 import { MoMFilterTypeEnum, MoMRarityEnum } from './enum';
 
@@ -78,7 +78,7 @@ export const getMoMDropdownArraysByName = (filterName: string): IDropDownValueAr
 	}
 }
 
-export const getRarityNumberFromEnum = (rarity: string): number => {
+export const getRarityNumberFromEnum = (rarity: string | null): number => {
 	switch(rarity){
 		case "Common":
 			return MoMRarityEnum.Common;
@@ -97,4 +97,10 @@ export const getRarityNumberFromEnum = (rarity: string): number => {
 		default: 
 			return -1;
 	}
+}
+
+export const sortLandPlotsByPrice = (lands: ILandPlot[] | null): ILandPlot[] => {
+	if(!lands) return [];
+
+	return lands.sort((a,b) => a.price.amount - b.price.amount);
 }

@@ -3,7 +3,7 @@ import axios from "axios"
 import { useEffect, useState } from "react";
 import { API_ENDPOINT_URL } from "../../common/constants"
 import { MoMFilterTypeEnum } from "../../common/enum";
-import { getRarityNumberFromEnum } from "../../common/helper";
+import { getRarityNumberFromEnum, sortLandPlotsByPrice } from "../../common/helper";
 import { IGetLandPlotsResponse, ILandPlot, IMoMFilter } from "../../interfaces/IMoMInteface";
 import { IMoMLandPlotRowProps, MoMLandPlotRow } from "./MoMLandPlotRow";
 import { IMoMStickyFiltersHeaderProps, MoMStickyFiltersHeader } from "./MoMStickyFiltersHeader";
@@ -18,7 +18,6 @@ export const MoMLandView = () => {
 			.then(response => {
 				if(response?.data){
 					setAllLandPlotData(response?.data.landPlots ?? null);
-					
 				}
 			});
 	}
@@ -31,21 +30,23 @@ export const MoMLandView = () => {
 		console.log(filteredLandPlotData)
 	}, [filteredLandPlotData])
 
-	const handleFilterChange = (filters: IMoMFilter[]) => {
+	const onLandRarityFilterChange = (filters: number[]) => {
+		if(!allLandPlotData) return;
 
-		for(let filter of filters){
-			if(allLandPlotData && filter?.type && filter?.value
-				&& Number(filter.type) === MoMFilterTypeEnum.Rarity){
-				let filtered = [...allLandPlotData]
-					.filter(a => getRarityNumberFromEnum(a.rarity ?? "") === Number(filter.value))
-				setFilteredLandPlotData(filtered);
-			}
-		}
+		let allLandPlots:ILandPlot [] = [];
+
+		for(let rarity of filters){
+			allLandPlots = allLandPlots.concat(allLandPlotData.filter(p => getRarityNumberFromEnum(p.rarity) === rarity))
+		}	
+		
+		allLandPlots = allLandPlots.concat(allLandPlotData.filter(p => p.rarity === null));
+
+		setFilteredLandPlotData(sortLandPlotsByPrice([...allLandPlots]));
 	}
 
 	const moMStickyFiltersHeaderProps: IMoMStickyFiltersHeaderProps = {
 		fetchLandPlotData: fetchLandPlotData,
-		onFilterChange: (filters: IMoMFilter[]) => { handleFilterChange(filters) }
+		onLandRarityFilterChange: (filters: number[]) => { onLandRarityFilterChange(filters) }
 	}
 
 	return(
