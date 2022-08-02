@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "MoM plots scanner",
+  "name": "MunQ's Mom land plot scanner",
   "icons": [
     {
       "src": "favicon.ico",

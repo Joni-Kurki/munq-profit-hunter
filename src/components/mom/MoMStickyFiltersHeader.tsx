@@ -1,4 +1,4 @@
-import { Button, Checkbox, FilledInput, FormHelperText, Grid, InputAdornment, Typography } from "@mui/material";
+import { Button, Checkbox, CircularProgress, FilledInput, FormHelperText, Grid, InputAdornment, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { MoMLandRarityFilterEnum } from "../../common/enum";
 import { getLandChipColorByRarity } from "../../common/helper";
@@ -7,8 +7,10 @@ export interface IMoMStickyFiltersHeaderProps {
 	fetchLandPlotData: () => void;
 	onLandRarityFilterChange: (rarities: number[]) => void;
 	onLandPriceChange: (value: number, isMin: boolean) => void;
+	onWalletFilterChange: (value:string) => void;
 	allLandsCount: number | null;
 	filteredLandsCount: number | null;
+	isLoading: boolean;
 }
 
 export const MoMStickyFiltersHeader = (props: IMoMStickyFiltersHeaderProps) => {
@@ -21,6 +23,7 @@ export const MoMStickyFiltersHeader = (props: IMoMStickyFiltersHeaderProps) => {
 	]);
 	const [minPrice, setMinPrice] = useState<number>(0);
 	const [maxPrice, setMaxPrice] = useState<number>(0);
+	const [walletFilter, setWalletFilter] = useState<string>("");
 
 	const handleLandRarityFilterChange = (value: number, checked: boolean) => {
 		let selectedValues = [...selectedLandRarities];
@@ -48,6 +51,12 @@ export const MoMStickyFiltersHeader = (props: IMoMStickyFiltersHeaderProps) => {
 		props.onLandPriceChange(tempV, isMin);
 	}
 
+	const handleWalletFilterChange = (value: string) => {
+		setWalletFilter(value)
+
+		props.onWalletFilterChange(value);
+	}
+
 	const isLandRarityChecked = (value: number) => {
 		return selectedLandRarities.findIndex(v => v === value) > -1;
 	}
@@ -67,11 +76,17 @@ export const MoMStickyFiltersHeader = (props: IMoMStickyFiltersHeaderProps) => {
 	return (
 		<Grid container style={{ borderBottom: "solid 1px white" }}>
 			<Grid container >
-				<Button	variant="outlined" onClick={props.fetchLandPlotData}>Load land plots data</Button>
+				<Button	
+					disabled={props.isLoading}
+					onClick={props.fetchLandPlotData}
+					variant="outlined" 
+				>
+					Load land plots data { props.isLoading ? <CircularProgress /> : ""}
+				</Button>
 			</Grid>
 
 			<Grid container style={{paddingBottom: "0.5rem"}}>
-				<Grid item xs={12} style={{borderTop: "2px solid white", borderBottom: "2px solid white"}}>
+				<Grid item xs={12} style={{borderTop: "2px solid white"}}>
 					<Grid container style={{ alignItems: "center" }}>
 						<Grid item xs={1} >
 							<Typography variant="h5">Lands</Typography>
@@ -130,6 +145,27 @@ export const MoMStickyFiltersHeader = (props: IMoMStickyFiltersHeaderProps) => {
 						</Grid>
 					</Grid>
 				</Grid>
+
+				<Grid item xs={12} style={{borderBottom: "2px solid white", paddingBottom: "0.5rem"}}>
+					<Grid container style={{ alignItems: "center" }}>
+						<Grid item xs={1}></Grid>
+						<Grid item xs={1} style={{textAlign: "left" }}>
+							<Typography variant="h6">wallet</Typography>
+						</Grid>
+						<Grid item xs={2} style={{textAlign: "left" }}>
+							<FilledInput
+								id="mom-filter-wallet-input"
+								inputProps={{
+									"aria-label": "wallet name"
+								}}
+								onChange={(e) => handleWalletFilterChange(e.target.value)}
+								size="small"
+								style={{ backgroundColor: "#121212"}}
+								value={walletFilter}
+							/>
+						</Grid>
+					</Grid>
+				</Grid>
 			</Grid>
 
 			<Grid container style={{ borderTop: "1px dotted white", padding: "0.5rem" }}>
@@ -138,7 +174,8 @@ export const MoMStickyFiltersHeader = (props: IMoMStickyFiltersHeaderProps) => {
 				<Grid item xs={2}>Price</Grid>
 				<Grid item xs={1}>Avail. space</Grid>
 				<Grid item xs={1}>Land Rarity</Grid>
-				<Grid item xs={5}>Buildings</Grid>
+				<Grid item xs={1}>Quad</Grid>
+				<Grid item xs={4}>Buildings</Grid>
 			</Grid>
 		</Grid>
 	)

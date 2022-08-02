@@ -12,6 +12,7 @@ export interface ILandPlot {
 	rarity: string | null;
 	saleId: number;
 	seller: string;
+	quad: string | null;
 }
 
 export interface IBuildingData{

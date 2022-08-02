@@ -9,7 +9,7 @@ import { IMoMLandPlotRowProps, MoMLandPlotRow } from "./MoMLandPlotRow";
 import { IMoMStickyFiltersHeaderProps, MoMStickyFiltersHeader } from "./MoMStickyFiltersHeader";
 
 export const MoMLandView = () => {
-
+	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [allLandPlotData, setAllLandPlotData] = useState<ILandPlot[] | null>(null);
 	const [filteredLandPlotData, setFilteredLandPlotData] = useState<ILandPlot[] | null>(null);
 	const [landsRarities, setLandsRarities] = useState<number[]>([
@@ -21,14 +21,19 @@ export const MoMLandView = () => {
 	]);
 	const [landsMinPrice, setLandsMinPrice] = useState<number>(-Infinity);
 	const [landsMaxPrice, setLandsMaxPrice] = useState<number>(Infinity);
+	const [walletFilter, setWalletFilter] = useState<string>("");
 
 	const fetchLandPlotData = () => {
+		if(isLoading) return;
+
+		setIsLoading(true);
 		axios.get<IGetLandPlotsResponse>(`${API_ENDPOINT_URL}/api/mom/getLandPlots`)
 			.then(response => {
 				if(response?.data){
 					setAllLandPlotData(response?.data.landPlots ?? null);
 				}
-			});
+			})
+			.finally(() => setIsLoading(false));
 	}
 
 	useEffect(() => {
@@ -40,13 +45,23 @@ export const MoMLandView = () => {
 
 		let allLandPlots:ILandPlot [] = [];
 
+		// Filters for rarities
 		for(let rarity of landsRarities){
 			allLandPlots = allLandPlots.concat(allLandPlotData.filter(p => getRarityNumberFromEnum(p.rarity) === rarity))
 		}	
 		
 		allLandPlots = allLandPlots.concat(allLandPlotData.filter(p => p.rarity === null));
 
+		// Filter for wallet
+		if(walletFilter !== ""){
+			console.log(walletFilter.includes(allLandPlotData[0]?.seller))
+			allLandPlots = allLandPlots.filter(a => a.seller.toLowerCase().indexOf(walletFilter.toLowerCase()) > -1);
+		}
+
+		// Filter for price
 		allLandPlots = allLandPlots.filter(a => a.price.amount >= landsMinPrice && a.price.amount <= landsMaxPrice);
+
+		console.log(allLandPlots);
 
 		setFilteredLandPlotData(sortLandPlotsByPrice([...allLandPlots]));
 	}
@@ -62,16 +77,23 @@ export const MoMLandView = () => {
 			setLandsMaxPrice(value === 0 ? Infinity : value);
 	}
 
+	const onWalletFilterChange = (value: string) => {
+		setWalletFilter(value);
+	}
+
 	useEffect(() => {
+		console.log(walletFilter);
 		filterChange();
-	}, [landsMinPrice, landsMaxPrice, landsRarities])
+	}, [landsMinPrice, landsMaxPrice, landsRarities, walletFilter])
 
 	const moMStickyFiltersHeaderProps: IMoMStickyFiltersHeaderProps = {
 		fetchLandPlotData: fetchLandPlotData,
 		onLandRarityFilterChange: (filters: number[]) => { onLandRarityFilterChange(filters) },
 		onLandPriceChange: (value: number, isMin: boolean) => { onLandPriceChange(value, isMin) },
+		onWalletFilterChange: (value: string) => { onWalletFilterChange(value) },
 		allLandsCount: allLandPlotData?.length ?? null,
-		filteredLandsCount: filteredLandPlotData?.length ?? null
+		filteredLandsCount: filteredLandPlotData?.length ?? null,
+		isLoading: isLoading
 	}
 
 	return(

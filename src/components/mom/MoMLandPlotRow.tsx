@@ -38,7 +38,10 @@ export const MoMLandPlotRow = (props: IMoMLandPlotRowProps) => {
 			<Grid item xs={1}>
 				<Chip size="small" variant="outlined" label={props.data.rarity ?? "BUNDLE"} style={{backgroundColor: getLandChipColorByRarity(props.data.rarity ?? "BUNDLE") ?? ""}} />
 			</Grid>
-			<Grid item xs={5}>
+			<Grid item xs={1}>
+				{ props.data.quad ?? "" }
+			</Grid>
+			<Grid item xs={4}>
 				<MoMLandPlotRowBuilding {...moMLandPlotRowBuildingProps} />
 			</Grid>
 		</Grid>
