@@ -11,11 +11,12 @@ export interface IMoMLandPlotRowProps {
 
 export const MoMLandPlotRow = (props: IMoMLandPlotRowProps) => {
 	const moMLandPlotRowBuildingProps: IMoMLandPlotRowBuildingProps = {
-		data: props.data.buildingsData
+		data: props.data.buildingsData,
+		saleId: props.data.saleId
 	}
 
 	return (
-		<Grid container style={{ borderBottom: "dotted 1px lightgrey" }}>
+		<Grid key={`mom-land-plot-row-${props.data.saleId}`} container style={{ borderBottom: "dotted 1px lightgrey" }}>
 			<Grid item xs={2}>
 				<Grid container>
 					<Grid item xs={2}>
@@ -42,7 +43,7 @@ export const MoMLandPlotRow = (props: IMoMLandPlotRowProps) => {
 				{ props.data.quad ?? "" }
 			</Grid>
 			<Grid item xs={4}>
-				<MoMLandPlotRowBuilding {...moMLandPlotRowBuildingProps} />
+				<MoMLandPlotRowBuilding key={`mom-land-plot-row-building-${props.data.saleId}`} {...moMLandPlotRowBuildingProps} />
 			</Grid>
 		</Grid>
 	)

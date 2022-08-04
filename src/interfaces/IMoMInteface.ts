@@ -45,3 +45,8 @@ export interface IDropDownValueArray {
 	name: string;
 	value: number;
 }
+
+export interface IMoMAutocompleteOption {
+	label: string;
+	value: number | string;
+}

@@ -1,16 +1,19 @@
-import { Button, Checkbox, CircularProgress, FilledInput, FormHelperText, Grid, InputAdornment, Typography } from "@mui/material";
+import { Autocomplete, Button, Checkbox, CircularProgress, FilledInput, FormHelperText, Grid, InputAdornment, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { MoMLandRarityFilterEnum } from "../../common/enum";
 import { getLandChipColorByRarity } from "../../common/helper";
+import { IMoMAutocompleteOption } from "../../interfaces/IMoMInteface";
 
 export interface IMoMStickyFiltersHeaderProps {
+	allLandsCount: number | null;
+	buildingSelectOptions: IMoMAutocompleteOption[];
 	fetchLandPlotData: () => void;
+	filteredLandsCount: number | null;
+	isLoading: boolean;
+	onBuildingChange: (buildings: IMoMAutocompleteOption[]) => void;
 	onLandRarityFilterChange: (rarities: number[]) => void;
 	onLandPriceChange: (value: number, isMin: boolean) => void;
 	onWalletFilterChange: (value:string) => void;
-	allLandsCount: number | null;
-	filteredLandsCount: number | null;
-	isLoading: boolean;
 }
 
 export const MoMStickyFiltersHeader = (props: IMoMStickyFiltersHeaderProps) => {
@@ -24,6 +27,7 @@ export const MoMStickyFiltersHeader = (props: IMoMStickyFiltersHeaderProps) => {
 	const [minPrice, setMinPrice] = useState<number>(0);
 	const [maxPrice, setMaxPrice] = useState<number>(0);
 	const [walletFilter, setWalletFilter] = useState<string>("");
+	const [selectedBuildings, setSelectedBuildings] = useState<IMoMAutocompleteOption[]>(props.buildingSelectOptions);
 
 	const handleLandRarityFilterChange = (value: number, checked: boolean) => {
 		let selectedValues = [...selectedLandRarities];
@@ -57,6 +61,10 @@ export const MoMStickyFiltersHeader = (props: IMoMStickyFiltersHeaderProps) => {
 		props.onWalletFilterChange(value);
 	}
 
+	const handleBuildingSelection = (values: IMoMAutocompleteOption[]) => {
+		setSelectedBuildings(values);
+	}
+
 	const isLandRarityChecked = (value: number) => {
 		return selectedLandRarities.findIndex(v => v === value) > -1;
 	}
@@ -64,6 +72,10 @@ export const MoMStickyFiltersHeader = (props: IMoMStickyFiltersHeaderProps) => {
 	useEffect(() => {
 		props.onLandRarityFilterChange(selectedLandRarities);
 	}, [props, selectedLandRarities])
+
+	useEffect(() => {
+		props.onBuildingChange(selectedBuildings);
+	}, [props, selectedBuildings])
 
 	const landRaritiesCheckBoxes = [
 		{ label: "Common", value: MoMLandRarityFilterEnum.Common, color: getLandChipColorByRarity("Common")  },
@@ -162,6 +174,31 @@ export const MoMStickyFiltersHeader = (props: IMoMStickyFiltersHeaderProps) => {
 								size="small"
 								style={{ backgroundColor: "#121212"}}
 								value={walletFilter}
+							/>
+						</Grid>
+					</Grid>
+				</Grid>
+			</Grid>
+
+			<Grid container style={{paddingBottom: "0.5rem"}}>
+				<Grid item xs={12}>
+					<Grid container style={{ alignItems: "center" }}>
+						<Grid item xs={2} >
+							<Typography variant="h5">Buildings</Typography>
+						</Grid>
+
+						<Grid item xs={10}>
+							<Autocomplete
+								multiple
+								onChange={(element, values) => handleBuildingSelection(values)}
+								options={props.buildingSelectOptions}
+								renderInput={(params) => 
+									<TextField 
+										{...params} 
+										label="the plot has any of selected buildings" 
+									/>
+								}
+								sx={{width: "100%"}}
 							/>
 						</Grid>
 					</Grid>

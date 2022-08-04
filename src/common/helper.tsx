@@ -1,4 +1,4 @@
-import { IBuildingRarityLevel, IDropDownValueArray, ILandPlot } from '../interfaces/IMoMInteface';
+import { IBuildingRarityLevel, IDropDownValueArray, ILandPlot, IMoMAutocompleteOption } from '../interfaces/IMoMInteface';
 import { MenuItem } from "@mui/material";
 import { MoMFilterTypeEnum, MoMRarityEnum } from './enum';
 
@@ -103,4 +103,24 @@ export const sortLandPlotsByPrice = (lands: ILandPlot[] | null): ILandPlot[] => 
 	if(!lands) return [];
 
 	return lands.sort((a,b) => a.price.amount - b.price.amount);
+}
+
+export const getAllUniqBuildingsFromLandPlotData = (data: ILandPlot[]): string[] => {
+	let values: string[] = [];
+	
+	for(let plot of data){
+		for(let building of plot.buildingsData){
+			if(!values.includes(building.building)) values.push(building.building);
+		}
+	}
+
+	return values;
+}
+
+export const landPlotContainsAnyBuilding = (buildingOptions: IMoMAutocompleteOption[], landPlot: ILandPlot) => {
+	return buildingOptions.find(b => landPlotContainsBuilding(b.label, landPlot)) ? true : false;
+}
+
+export const landPlotContainsBuilding = (buildingName: string, landPlot: ILandPlot): boolean => {
+	return landPlot?.buildingsData?.find(b => b.building === buildingName) ? true : false;
 }
